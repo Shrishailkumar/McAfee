@@ -24,9 +24,14 @@ public class HomePresenter {
         }
     }
 
+    public void startCounter() {
+        mHomeVieDelegate.startCounter();
+    }
+
     public interface HomeVieDelegate{
 
        void onClickofStartButton();
+       void startCounter();
     }
 
     public void onClickOfStart(){

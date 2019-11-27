@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,11 +33,14 @@ public class HomeActivity extends Activity implements HomePresenter.HomeVieDeleg
     Timer timer;
     TimerTask mTimerTask;
     int[] counter;
+    CountDownTimer mCountDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        Log.d("shri", "inside oncreate");
+
         ButterKnife.bind(this);
         mHompresenter = new HomePresenter(this);
 
@@ -56,42 +60,67 @@ public class HomeActivity extends Activity implements HomePresenter.HomeVieDeleg
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("shri", "inside onStart");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("shri", "inside onRestart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("shri", "inside onResume");
+    }
+
+    @Override
     protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
-
+        Log.d("shri", "saving state of varibalesbefore activity recreated");
         mHompresenter.onClickOfStart();
         outState.putInt("counter_value", counter[0]);
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("shri", "inside onpause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("shri", "inside onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("shri", "inside onDistroy");
+    }
+
+    @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (null==counter) {
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+            Log.d("shri", "canceling countdown");
+        }
+        if (null == counter) {
+            Log.d("shri", "initializingcounter  again after activity recreated");
             counter = new int[]{0};
         }
         counter[0] = savedInstanceState.getInt("counter_value");
+        mHompresenter.startCounter();
     }
 
     @Override
     public void onClickofStartButton() {
-        counter = new int[]{Integer.parseInt(mCounterInput.getText().toString())};
-        if (null!=counter) {
-            new CountDownTimer(counter[0] * 1000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    mTextVieewShowCounter.setText(String.valueOf(counter[0]));
-                    counter[0]--;
-                    mButton.setVisibility(View.GONE);
-
-                }
-
-                @Override
-                public void onFinish() {
-                    mTextVieewShowCounter.setText("Completed");
-                    mButton.setVisibility(View.VISIBLE);
-                }
-            }.start();
-        }
+        mHompresenter.startCounter();
         //second way -->
         /*timer = new Timer();
 
@@ -121,5 +150,28 @@ public class HomeActivity extends Activity implements HomePresenter.HomeVieDeleg
 
     }
 
+    @Override
+    public void startCounter() {
+        if (counter==null)
+        counter = new int[]{Integer.parseInt(mCounterInput.getText().toString())};
+        if (null != counter) {
+            mCountDownTimer = new CountDownTimer(counter[0] * 1000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    mTextVieewShowCounter.setText(String.valueOf(counter[0]));
+                    counter[0]--;
+                    mButton.setVisibility(View.GONE);
+
+                }
+
+                @Override
+                public void onFinish() {
+                    mTextVieewShowCounter.setText("Completed");
+                    Log.d("shri", "on finish of onClick");
+                    mButton.setVisibility(View.VISIBLE);
+                }
+            }.start();
+        }
+    }
 
 }
